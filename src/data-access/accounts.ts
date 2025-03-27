@@ -3,6 +3,7 @@ import { accounts } from "@/db/schema";
 import { UserId } from "@/use-cases/types";
 import crypto from "crypto";
 import { hashPassword } from "./utils";
+import { eq } from "drizzle-orm";
 
 export async function createAccount(userId: UserId, password: string) {
   const salt = crypto.randomBytes(128).toString("base64");
@@ -16,5 +17,13 @@ export async function createAccount(userId: UserId, password: string) {
       salt,
     })
     .returning();
+  return account;
+}
+
+export async function getAccountByUserId(userId: UserId) {
+  const account = await database.query.accounts.findFirst({
+    where: eq(accounts.userId, userId),
+  });
+
   return account;
 }

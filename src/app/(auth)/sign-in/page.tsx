@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { btnStyles } from "@/styles/icons";
 import { Mail } from "lucide-react";
 import Link from "next/link";
-import { MagicLinkForm } from "./magic-link-form";
+// import { MagicLinkForm } from "./magic-link-form";
 
 export default function SignInPage() {
   return (
@@ -55,7 +55,7 @@ export default function SignInPage() {
             </div>
           </div>
 
-          <MagicLinkForm />
+          {/* <MagicLinkForm /> */}
 
           <div className="relative py-4">
             <div className="absolute inset-0 flex items-center">

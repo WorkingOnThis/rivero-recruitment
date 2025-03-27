@@ -4,6 +4,7 @@ import {
 import {
   createUser,
   getUserByEmail,
+  verifyPassword,
 } from "@/data-access/users";
 import {
   createAccount,
@@ -21,7 +22,7 @@ import {
   createVerifyEmailToken,
 } from "@/data-access/verify-email";
 import { VerifyEmail } from "@/emails/verify-email";
-import { PublicError } from "./errors";
+import { LoginError, PublicError } from "./errors";
 
 export async function registerUserUseCase(email: string, password: string) {
   const existingUser = await getUserByEmail(email);
@@ -50,6 +51,22 @@ export async function registerUserUseCase(email: string, password: string) {
       "Verification email would not be sent, did you setup the resend API key?",
       error
     );
+  }
+
+  return { id: user.id };
+}
+
+export async function signInUseCase(email: string, password: string) {
+  const user = await getUserByEmail(email);
+
+  if (!user) {
+    throw new LoginError();
+  }
+
+  const isPasswordCorrect = await verifyPassword(email, password);
+
+  if (!isPasswordCorrect) {
+    throw new LoginError();
   }
 
   return { id: user.id };
