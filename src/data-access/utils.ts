@@ -1,3 +1,4 @@
+import { database } from "@/db";
 import crypto from "crypto";
 
 export const ITERATIONS = 10000;
@@ -30,4 +31,10 @@ export async function hashPassword(plainTextPassword: string, salt: string) {
       }
     );
   });
+}
+
+export async function createTransaction<T extends typeof database>(
+  cb: (trx: T) => void
+) {
+  await database.transaction(cb as any);
 }

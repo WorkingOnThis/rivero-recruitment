@@ -8,6 +8,7 @@ import {
 } from "@/data-access/users";
 import {
   createAccount,
+  updatePassword,
 } from "@/data-access/accounts";
 import {
   uniqueNamesGenerator,
@@ -23,6 +24,15 @@ import {
 } from "@/data-access/verify-email";
 import { VerifyEmail } from "@/emails/verify-email";
 import { LoginError, PublicError } from "./errors";
+import {
+  createPasswordResetToken,
+  deletePasswordResetToken,
+  getPasswordResetToken,
+} from "@/data-access/reset-tokens";
+import { ResetPasswordEmail } from "@/emails/reset-password";
+import { createTransaction } from "@/data-access/utils";
+import { deleteSessionForUser } from "@/data-access/sessions";
+
 
 export async function registerUserUseCase(email: string, password: string) {
   const existingUser = await getUserByEmail(email);
@@ -70,4 +80,36 @@ export async function signInUseCase(email: string, password: string) {
   }
 
   return { id: user.id };
+}
+
+export async function resetPasswordUseCase(email: string) {
+  const user = await getUserByEmail(email);
+
+  if (!user) {
+    return null;
+  }
+
+  const token = await createPasswordResetToken(user.id);
+
+  await sendEmail(
+    email,
+    `Your password reset link for ${applicationName}`,
+    <ResetPasswordEmail token={token} />
+  );
+}
+
+export async function changePasswordUseCase(token: string, password: string) {
+  const tokenEntry = await getPasswordResetToken(token);
+
+  if (!tokenEntry) {
+    throw new PublicError("Invalid token");
+  }
+
+  const userId = tokenEntry.userId;
+
+  await createTransaction(async (trx) => {
+    await deletePasswordResetToken(token, trx);
+    await updatePassword(userId, password, trx);
+    await deleteSessionForUser(userId, trx);
+  });
 }

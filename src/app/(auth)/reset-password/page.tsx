@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { changePasswordAction } from "./actions";
 import { LoaderButton } from "@/components/loader-button";
 import { useServerAction } from "zsa-react";
+import { useSearchParams } from "next/navigation";
 
 const registrationSchema = z
   .object({
@@ -34,12 +35,10 @@ const registrationSchema = z
     path: ["passwordConfirmation"],
   });
 
-export default async function ResetPasswordPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ token: string }>;
-}) {
-  const { token } = await searchParams;
+export default function ResetPasswordPage() {
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token") || "";
+  
   const form = useForm<z.infer<typeof registrationSchema>>({
     resolver: zodResolver(registrationSchema),
     defaultValues: {
@@ -66,7 +65,7 @@ export default async function ResetPasswordPage({
           <h1 className={cn(pageTitleStyles, "text-center")}>
             Password Updated
           </h1>
-          <Alert variant="success">
+          <Alert>
             <Terminal className="h-4 w-4" />
             <AlertTitle>Password updated</AlertTitle>
             <AlertDescription>

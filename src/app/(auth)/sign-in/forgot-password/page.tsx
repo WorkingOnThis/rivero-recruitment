@@ -20,24 +20,24 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useServerAction } from "zsa-react";
 import { LoaderButton } from "@/components/loader-button";
 import { resetPasswordAction } from "./actions";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 const registrationSchema = z.object({
   email: z.string().email(),
 });
 
 export default function ForgotPasswordPage() {
-  const { toast } = useToast();
 
   const { execute, isPending, isSuccess } = useServerAction(
     resetPasswordAction,
     {
       onError({ err }) {
-        toast({
-          title: "Something went wrong",
-          description: err.message,
-          variant: "destructive",
-        });
+        toast(
+          "Something went wrong",
+          {
+            description: err.message,
+          }
+        );
       },
     }
   );
@@ -58,7 +58,7 @@ export default function ForgotPasswordPage() {
       <h1 className={cn(pageTitleStyles, "text-center")}>Forgot Password</h1>
 
       {isSuccess && (
-        <Alert variant="success">
+        <Alert>
           <Terminal className="h-4 w-4" />
           <AlertTitle>Reset link sent</AlertTitle>
           <AlertDescription>
